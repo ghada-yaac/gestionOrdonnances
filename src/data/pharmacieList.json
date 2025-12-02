@@ -1,0 +1,52 @@
+[
+  {
+    "id": "ph1",
+    "nom": "Pharmacie de la Kasbah",
+    "adresse": "12 Avenue Habib Bourguiba, 1000 Tunis"
+  },
+  {
+    "id": "ph2",
+    "nom": "Pharmacie Centrale El Manar",
+    "adresse": "Avenue de la Ligue Arabe, El Manar 2, 2092 Tunis"
+  },
+  {
+    "id": "ph3",
+    "nom": "Pharmacie de Nuit La Marsa",
+    "adresse": "Rue de la Corniche, La Marsa 2070 Tunis"
+  },
+  {
+    "id": "ph4",
+    "nom": "Pharmacie Ennasr",
+    "adresse": "Centre Commercial Carrefour, Ariana 2037"
+  },
+  {
+    "id": "ph5",
+    "nom": "Pharmacie Sidi Bou Saïd",
+    "adresse": "Place Sidi Bou Saïd, 2026 Sidi Bou Saïd"
+  },
+  {
+    "id": "ph6",
+    "nom": "Pharmacie Monastir Centre",
+    "adresse": "Avenue Habib Bourguiba, 5000 Monastir"
+  },
+  {
+    "id": "ph7",
+    "nom": "Pharmacie Hammam Sousse",
+    "adresse": "Boulevard du 14 Janvier, 4000 Sousse"
+  },
+  {
+    "id": "ph8",
+    "nom": "Pharmacie El Jem",
+    "adresse": "Rue Farhat Hached, 5160 El Jem"
+  },
+  {
+    "id": "ph9",
+    "nom": "Pharmacie de Nabeul",
+    "adresse": "Avenue de la République, 8000 Nabeul"
+  },
+  {
+    "id": "ph10",
+    "nom": "Pharmacie Bizerte Marine",
+    "adresse": "Port de Bizerte, 7000 Bizerte"
+  }
+]

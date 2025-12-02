@@ -1,0 +1,86 @@
+[
+  {
+    "id": "m001",
+    "nom": "Doliprane",
+    "dosage": "1000 mg",
+    "forme": "Comprimé",
+    "quantiteStock": 350
+  },
+  {
+    "id": "m002",
+    "nom": "Amoxicilline",
+    "dosage": "500 mg",
+    "forme": "Gélule",
+    "quantiteStock": 280
+  },
+  {
+    "id": "m003",
+    "nom": "Efferalgan",
+    "dosage": "500 mg",
+    "forme": "Comprimé effervescent",
+    "quantiteStock": 420
+  },
+  {
+    "id": "m004",
+    "nom": "Spasfon",
+    "dosage": "80 mg",
+    "forme": "Comprimé enrobé",
+    "quantiteStock": 190
+  },
+  {
+    "id": "m005",
+    "nom": "Dafalgan",
+    "dosage": "1 g",
+    "forme": "Suppositoire",
+    "quantiteStock": 150
+  },
+  {
+    "id": "m006",
+    "nom": "Augmentin",
+    "dosage": "1 g",
+    "forme": "Comprimé",
+    "quantiteStock": 220
+  },
+  {
+    "id": "m007",
+    "nom": "Nexium",
+    "dosage": "20 mg",
+    "forme": "Gélule",
+    "quantiteStock": 180
+  },
+  {
+    "id": "m008",
+    "nom": "Doliprane Vitaminé C",
+    "dosage": "500 mg + 200 mg",
+    "forme": "Comprimé effervescent",
+    "quantiteStock": 300
+  },
+  {
+    "id": "m009",
+    "nom": "Profenid",
+    "dosage": "100 mg",
+    "forme": "Gélule",
+    "quantiteStock": 140
+  },
+  {
+    "id": "m010",
+    "nom": "Sirop Toplexil",
+    "dosage": "0,33 mg/ml",
+    "forme": "Sirop",
+    "quantiteStock": 95
+  },
+  {
+    "id": "m011",
+    "nom": "Ventoline",
+    "dosage": "100 µg",
+    "forme": "Aérosol",
+    "quantiteStock": 80
+  },
+  {
+    "id": "m012",
+    "nom": "Paracétamol Biogaran",
+    "dosage": "500 mg",
+    "forme": "Comprimé",
+    "quantiteStock": 500
+  }
+]
