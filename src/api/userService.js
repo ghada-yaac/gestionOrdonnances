@@ -17,6 +17,15 @@ export const initializeUsers = async () => {
       age: 45,
       adresse: "10 rue des Lilas",
       telephone: "0600000000"
+    },{
+      id: "u2",
+      role: "patient",
+      name: "Jean Martin",
+      email: "patient1@test.com",
+      password: "patient123",
+      age: 45,
+      adresse: "10 rue des Lilas",
+      telephone: "0600000000"
     },
     {
       id: "u333",

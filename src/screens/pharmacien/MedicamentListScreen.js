@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useMedicamentStore } from "../../store/medicamentStore";
 import { MedicamentItem } from "../../components/pharmacien/MedicamentItem";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
@@ -20,6 +21,14 @@ export const MedicamentListScreen = ({ navigation }) => {
   useEffect(() => {
     loadMedicaments();
   }, []);
+
+  // Recharger quand on revient sur l'écran (après ajout/modification)
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("🔄 Rechargement des médicaments...");
+      loadMedicaments();
+    }, [])
+  );
 
   const handleRefresh = () => {
     loadMedicaments();

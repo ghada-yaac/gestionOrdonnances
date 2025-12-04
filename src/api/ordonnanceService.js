@@ -86,6 +86,7 @@ export const initializeOrdonnances = async () => {
     }
   ];
   
+  // Toujours écraser les ordonnances existantes
   await saveItem(ORDONNANCE_KEY, defaultOrdonnances);
   console.log("✅ Ordonnances réinitialisées:", defaultOrdonnances.length, "ordonnances");
   return defaultOrdonnances;
@@ -101,6 +102,16 @@ export const addOrdonnance = async (ordonnance) => {
 export const updateOrdonnance = async (id, updated) => {
   const ords = await getOrdonnances();
   const newList = ords.map((o) => (o.id === id ? { ...o, ...updated } : o));
+  await saveItem(ORDONNANCE_KEY, newList);
+  return newList;
+};
+
+export const deleteOrdonnance = async (id) => {
+  console.log("🗑️ Suppression de l'ordonnance:", id);
+  const ords = await getOrdonnances();
+  console.log("📋 Ordonnances avant suppression:", ords.length);
+  const newList = ords.filter((o) => o.id !== id);
+  console.log("📋 Ordonnances après suppression:", newList.length);
   await saveItem(ORDONNANCE_KEY, newList);
   return newList;
 };

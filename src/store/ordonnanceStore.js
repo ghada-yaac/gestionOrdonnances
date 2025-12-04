@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { 
   getOrdonnances, 
   addOrdonnance, 
-  updateOrdonnance 
+  updateOrdonnance,
+  deleteOrdonnance 
 } from "../api/ordonnanceService";
 
 export const useOrdonnanceStore = create((set) => ({
@@ -23,6 +24,14 @@ export const useOrdonnanceStore = create((set) => ({
   updateOrdonnance: async (id, updated) => {
     const newList = await updateOrdonnance(id, updated);
     set({ ordonnances: newList });
+  },
+
+  deleteOrdonnance: async (id) => {
+    console.log("🗑️ Store: Suppression de l'ordonnance", id);
+    const newList = await deleteOrdonnance(id);
+    console.log("✅ Store: Nouvelle liste avec", newList.length, "ordonnances");
+    set({ ordonnances: newList });
+    return newList;
   },
 
   getOrdonnancesByPatient: (patientId) => {

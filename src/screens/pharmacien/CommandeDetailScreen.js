@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useCommandeStore } from "../../store/commandeStore";
+import { useMedicamentStore } from "../../store/medicamentStore";
 import { Card } from "../../components/common/Card";
 import { CommandeStatusBadge } from "../../components/pharmacien/CommandeStatusBadge";
 import { Button } from "../../components/common/Button";
@@ -16,18 +18,52 @@ import { Ionicons } from "@expo/vector-icons";
 export const CommandeDetailScreen = ({ route, navigation }) => {
   const { commandeId } = route.params;
   const { getCommandeById, updateCommandeStatus, loadCommandes } = useCommandeStore();
+  const { medicaments, loadMedicaments } = useMedicamentStore();
   const [commande, setCommande] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [medicamentsDisponibles, setMedicamentsDisponibles] = useState([]);
 
   useEffect(() => {
-    loadCommandeData();
+    loadData();
   }, [commandeId]);
 
-  const loadCommandeData = async () => {
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("🔄 Rechargement des données de la commande...");
+      loadData();
+    }, [commandeId])
+  );
+
+  const loadData = async () => {
     await loadCommandes();
+    await loadMedicaments();
     const cmd = getCommandeById(commandeId);
     setCommande(cmd);
+    console.log("✅ Données rechargées - Commande et médicaments");
   };
+
+ useEffect(() => {
+  if (commande && medicaments.length > 0) {
+    const disponibilite = commande.medicaments.map((medCommande) => {
+      const medStock = medicaments.find(
+        (m) =>
+          m.nom.trim().toLowerCase() === medCommande.nomMedicament.trim().toLowerCase()
+      );
+
+      const quantiteNecessaire = medCommande.quantiteParJour * medCommande.duree;
+
+      return {
+        ...medCommande,
+        enStock: medStock ? medStock.quantiteStock : 0,
+        quantiteNecessaire,
+        disponible: medStock ? medStock.quantiteStock >= quantiteNecessaire : false,
+        exists: !!medStock,
+      };
+    });
+
+    setMedicamentsDisponibles(disponibilite);
+  }
+}, [commande, medicaments]);
 
   if (!commande) {
     return (
@@ -49,6 +85,39 @@ export const CommandeDetailScreen = ({ route, navigation }) => {
   };
 
   const handleUpdateStatus = async (newStatus) => {
+    if (newStatus === "en_preparation") {
+      const medicamentsManquants = medicamentsDisponibles.filter((m) => !m.exists);
+      const medicamentsInsuffisants = medicamentsDisponibles.filter(
+        (m) => m.exists && !m.disponible
+      );
+
+      if (medicamentsManquants.length > 0) {
+        const listeMedicaments = medicamentsManquants.map((m) => m.nomMedicament).join(", ");
+        Alert.alert(
+          "Médicaments inexistants",
+          `Les médicaments suivants n'existent pas dans votre catalogue :\n\n${listeMedicaments}\n\nVeuillez d'abord les ajouter dans la section Médicaments.`,
+          [{ text: "OK" }]
+        );
+        return;
+      }
+
+      if (medicamentsInsuffisants.length > 0) {
+        const details = medicamentsInsuffisants
+          .map(
+            (m) =>
+              `• ${m.nomMedicament}: ${m.enStock} en stock, ${m.quantiteNecessaire} nécessaires`
+          )
+          .join("\n");
+        
+        Alert.alert(
+          "Stock insuffisant",
+          `Les médicaments suivants ont un stock insuffisant :\n\n${details}\n\nVeuillez réapprovisionner votre stock.`,
+          [{ text: "OK" }]
+        );
+        return;
+      }
+    }
+
     const statusLabels = {
       en_attente: "En attente",
       en_preparation: "En préparation",
@@ -161,7 +230,7 @@ export const CommandeDetailScreen = ({ route, navigation }) => {
           </View>
 
           {commande.medicaments &&
-            commande.medicaments.map((med, index) => (
+            medicamentsDisponibles.map((med, index) => (
               <View key={index} style={styles.medicamentItem}>
                 <View style={styles.medicamentHeader}>
                   <View style={styles.medicamentIcon}>
@@ -173,6 +242,21 @@ export const CommandeDetailScreen = ({ route, navigation }) => {
                     </Text>
                     <Text style={styles.medicamentDosage}>{med.dosage}</Text>
                   </View>
+                  {!med.exists && (
+                    <View style={styles.warningBadge}>
+                      <Ionicons name="alert-circle" size={20} color="#EF4444" />
+                    </View>
+                  )}
+                  {med.exists && !med.disponible && (
+                    <View style={styles.warningBadge}>
+                      <Ionicons name="warning" size={20} color="#F59E0B" />
+                    </View>
+                  )}
+                  {med.exists && med.disponible && (
+                    <View style={styles.successBadge}>
+                      <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                    </View>
+                  )}
                 </View>
 
                 <View style={styles.quantityContainer}>
@@ -193,9 +277,37 @@ export const CommandeDetailScreen = ({ route, navigation }) => {
                 <View style={styles.totalQuantity}>
                   <Text style={styles.totalLabel}>Quantité totale à préparer</Text>
                   <Text style={styles.totalValue}>
-                    {med.quantiteParJour * med.duree} unités
+                    {med.quantiteNecessaire} unités
                   </Text>
                 </View>
+
+                {/* Afficher le statut du stock */}
+                {!med.exists && (
+                  <View style={styles.stockAlert}>
+                    <Ionicons name="alert-circle" size={18} color="#EF4444" />
+                    <Text style={styles.stockAlertText}>
+                      Ce médicament n'existe pas dans votre catalogue
+                    </Text>
+                  </View>
+                )}
+                
+                {med.exists && !med.disponible && (
+                  <View style={styles.stockWarning}>
+                    <Ionicons name="warning" size={18} color="#F59E0B" />
+                    <Text style={styles.stockWarningText}>
+                      Stock insuffisant: {med.enStock} disponibles sur {med.quantiteNecessaire} nécessaires
+                    </Text>
+                  </View>
+                )}
+
+                {med.exists && med.disponible && (
+                  <View style={styles.stockSuccess}>
+                    <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+                    <Text style={styles.stockSuccessText}>
+                      Stock disponible: {med.enStock} unités
+                    </Text>
+                  </View>
+                )}
 
                 {index < commande.medicaments.length - 1 && (
                   <View style={styles.medicamentDivider} />
@@ -453,5 +565,53 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#065F46",
     marginLeft: 12,
+  },
+  warningBadge: {
+    marginLeft: 8,
+  },
+  successBadge: {
+    marginLeft: 8,
+  },
+  stockAlert: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEE2E2",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  stockAlertText: {
+    fontSize: 13,
+    color: "#991B1B",
+    marginLeft: 8,
+    flex: 1,
+  },
+  stockWarning: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FEF3C7",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  stockWarningText: {
+    fontSize: 13,
+    color: "#92400E",
+    marginLeft: 8,
+    flex: 1,
+  },
+  stockSuccess: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#D1FAE5",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  stockSuccessText: {
+    fontSize: 13,
+    color: "#065F46",
+    marginLeft: 8,
+    flex: 1,
   },
 });

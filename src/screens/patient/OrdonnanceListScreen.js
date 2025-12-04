@@ -7,6 +7,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useOrdonnanceStore } from "../../store/ordonnanceStore";
 import { useAuthStore } from "../../store/authStore";
 import { OrdonnanceItem } from "../../components/patient/OrdonnanceItem";
@@ -20,6 +21,14 @@ export const OrdonnanceListScreen = ({ navigation }) => {
   useEffect(() => {
     loadOrdonnances();
   }, []);
+
+  // Recharger les ordonnances quand on revient sur cet écran
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log("🔄 Écran Ordonnances actif - Rechargement...");
+      loadOrdonnances();
+    }, [])
+  );
 
   const patientOrdonnances = ordonnances.filter(
     (o) => o.patientId === user?.id

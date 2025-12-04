@@ -11,6 +11,7 @@ import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
 import { Card } from "../../components/common/Card";
 import { useCommandeStore } from "../../store/commandeStore";
+import { useOrdonnanceStore } from "../../store/ordonnanceStore";
 import { useAuthStore } from "../../store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -23,6 +24,7 @@ const PHARMACIES = [
 export const CommandeCreateScreen = ({ route, navigation }) => {
   const { ordonnance } = route.params;
   const { addCommande } = useCommandeStore();
+  const { deleteOrdonnance, loadOrdonnances } = useOrdonnanceStore();
   const { user } = useAuthStore();
 
   const [selectedPharmacie, setSelectedPharmacie] = useState(null);
@@ -41,38 +43,72 @@ export const CommandeCreateScreen = ({ route, navigation }) => {
       return;
     }
 
-    setIsSubmitting(true);
+    Alert.alert(
+      "Confirmer la commande",
+      "En créant cette commande, l'ordonnance sera supprimée de votre liste. Voulez-vous continuer ?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Confirmer",
+          onPress: async () => {
+            setIsSubmitting(true);
 
-    const newCommande = {
-      id: `c${Date.now()}`,
-      ordonnanceId: ordonnance.id,
-      patientId: user.id,
-      pharmacienId: selectedPharmacie.id,
-      pharmacieName: selectedPharmacie.name,
-      status: "en_attente",
-      dateCreation: new Date().toISOString(),
-      lieuLivraison: lieuLivraison.trim(),
-      remarques: remarques.trim(),
-      medicaments: ordonnance.medicaments,
-    };
+            const newCommande = {
+              id: `c${Date.now()}`,
+              ordonnanceId: ordonnance.id,
+              patientId: user.id,
+              pharmacienId: selectedPharmacie.id,
+              pharmacieName: selectedPharmacie.name,
+              status: "en_attente",
+              dateCreation: new Date().toISOString(),
+              lieuLivraison: lieuLivraison.trim(),
+              remarques: remarques.trim(),
+              medicaments: ordonnance.medicaments,
+            };
 
-    try {
-      await addCommande(newCommande);
-      Alert.alert(
-        "Succès",
-        "Votre commande a été créée avec succès",
-        [
-          {
-            text: "OK",
-            onPress: () => navigation.navigate("CommandeList"),
+            try {
+              // Créer la commande
+              await addCommande(newCommande);
+              console.log("✅ Commande créée:", newCommande.id);
+              
+              // Supprimer l'ordonnance
+              await deleteOrdonnance(ordonnance.id);
+              console.log("✅ Ordonnance supprimée:", ordonnance.id);
+              
+              // Recharger les ordonnances pour mettre à jour la liste
+              await loadOrdonnances();
+              console.log("✅ Ordonnances rechargées");
+              
+              Alert.alert(
+                "Succès",
+                "Votre commande a été créée avec succès ! L'ordonnance a été transformée en commande.",
+                [
+                  {
+                    text: "Voir mes commandes",
+                    onPress: () => {
+                      navigation.getParent()?.navigate("CommandesTab");
+                    }
+                  },
+                  {
+                    text: "Retour aux ordonnances",
+                    onPress: () => {
+                      // Retourner à la liste des ordonnances
+                      navigation.popToTop();
+                    },
+                    style: "cancel"
+                  }
+                ]
+              );
+            } catch (error) {
+              console.error("❌ Erreur lors de la création de la commande:", error);
+              Alert.alert("Erreur", "Impossible de créer la commande");
+            } finally {
+              setIsSubmitting(false);
+            }
           },
-        ]
-      );
-    } catch (error) {
-      Alert.alert("Erreur", "Impossible de créer la commande");
-    } finally {
-      setIsSubmitting(false);
-    }
+        },
+      ]
+    );
   };
 
   return (
